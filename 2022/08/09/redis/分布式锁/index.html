@@ -1,0 +1,330 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>分布式锁篇 | FettersLoveの博客</title><meta name="author" content="FettersLove"><meta name="copyright" content="FettersLove"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="分布式锁篇">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分布式锁篇">
+<meta property="og:url" content="http://example.com/2022/08/09/redis/%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81/index.html">
+<meta property="og:site_name" content="FettersLoveの博客">
+<meta property="og:description" content="分布式锁篇">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://edu-fly.oss-cn-beijing.aliyuncs.com/hexo-blog/cover/QQ%E5%9B%BE%E7%89%8720221113173833.jpg">
+<meta property="article:published_time" content="2022-08-08T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-11-13T14:27:51.974Z">
+<meta property="article:author" content="FettersLove">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://edu-fly.oss-cn-beijing.aliyuncs.com/hexo-blog/cover/QQ%E5%9B%BE%E7%89%8720221113173833.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2022/08/09/redis/%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="/Free" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: {"limitDay":365,"position":"top","messagePrev":"It has been","messageNext":"days since the last update, the content of the article may be outdated."},
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":230},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: true,
+    post: true
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"Author: FettersLove","link":"Link: ","source":"Source: FettersLoveの博客","info":"Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source."}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '分布式锁篇',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: true,
+  isToc: true,
+  postUpdate: '2022-11-13 22:27:51'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><!-- hexo injector head_end start --><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-categories-card@1.0.0/lib/categorybar.css"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/assets/font-awesome-animation.min.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/tag_plugins.css" media="defer" onload="this.media='all'"><script src="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/assets/carousel-touch.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://edu-fly.oss-cn-beijing.aliyuncs.com/QQ%E5%9B%BE%E7%89%8720221110180115.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">19</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">4</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-book"></i><span> 程序生涯</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 项目</span></a></li></ul></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-list"></i><span> 娱乐</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-face-smile"></i><span> 个人</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/story/"><i class="fa-fw fas fa-star"></i><span> story</span></a></li><li><a class="site-page child" href="/perception/"><i class="fa-fw fas fa-paper-plane"></i><span> 感悟</span></a></li><li><a class="site-page child" href="/cover/"><i class="fa-fw fas fa-headphones"></i><span> 翻唱音乐</span></a></li><li><a class="site-page child" href="/warmBlood/"><i class="fa-fw fas fa-fire"></i><span> 热血</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/comments/"><i class="fa-fw fas fa-envelope-open"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://edu-fly.oss-cn-beijing.aliyuncs.com/hexo-blog/cover/QQ%E5%9B%BE%E7%89%8720221113173833.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">FettersLoveの博客</a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-book"></i><span> 程序生涯</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 项目</span></a></li></ul></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-list"></i><span> 娱乐</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-face-smile"></i><span> 个人</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/story/"><i class="fa-fw fas fa-star"></i><span> story</span></a></li><li><a class="site-page child" href="/perception/"><i class="fa-fw fas fa-paper-plane"></i><span> 感悟</span></a></li><li><a class="site-page child" href="/cover/"><i class="fa-fw fas fa-headphones"></i><span> 翻唱音乐</span></a></li><li><a class="site-page child" href="/warmBlood/"><i class="fa-fw fas fa-fire"></i><span> 热血</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/comments/"><i class="fa-fw fas fa-envelope-open"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">分布式锁篇</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2022-08-08T16:00:00.000Z" title="Created 2022-08-09 00:00:00">2022-08-09</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2022-11-13T14:27:51.974Z" title="Updated 2022-11-13 22:27:51">2022-11-13</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/redis/">redis</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="分布式锁篇"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post View:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="如何用-Redis-实现分布式锁的？"><a href="#如何用-Redis-实现分布式锁的？" class="headerlink" title="如何用 Redis 实现分布式锁的？"></a>如何用 Redis 实现分布式锁的？</h2><p>分布式锁是用于分布式环境下并发控制的一种机制，用于控制某个资源在同一时刻只能被一个应用所使用。如下图所示：<br><img src="https://cdn.nlark.com/yuque/0/2022/png/21371548/1658646467551-ed3bd458-d969-4327-903e-6c3de256134e.png#averageHue=%23faf9f9&amp;clientId=u1ab4fe20-72cf-4&amp;crop=0&amp;crop=0&amp;crop=1&amp;crop=1&amp;from=paste&amp;height=276&amp;id=k40Bl&amp;margin=%5Bobject%20Object%5D&amp;name=image.png&amp;originHeight=674&amp;originWidth=1454&amp;originalType=url&amp;ratio=1&amp;rotation=0&amp;showTitle=false&amp;size=191505&amp;status=done&amp;style=none&amp;taskId=ud4e2bd3d-3bf2-4c4d-9d5c-f0aaaa7342e&amp;title=&amp;width=596.0000610351562" alt="image.png"><br>Redis 本身可以被多个客户端共享访问，正好就是一个共享存储系统，可以用来保存分布式锁，而且 Redis 的读写性能高，可以应对高并发的锁操作场景。<br>Redis 的 SET 命令有个 NX 参数可以实现「key不存在才插入」，所以可以用它来实现分布式锁：</p>
+<ul>
+<li>如果 key 不存在，则显示插入成功，可以用来表示加锁成功；</li>
+<li>如果 key 存在，则会显示插入失败，可以用来表示加锁失败。</li>
+</ul>
+<p>基于 Redis 节点实现分布式锁时，对于加锁操作，我们需要满足三个条件。</p>
+<ul>
+<li>加锁包括了读取锁变量、检查锁变量值和设置锁变量值三个操作，但需要以原子操作的方式完成，所以，我们使用 SET 命令带上 NX 选项来实现加锁；</li>
+<li>锁变量需要设置过期时间，以免客户端拿到锁后发生异常，导致锁一直无法释放，所以，我们在 SET 命令执行时加上 EX/PX 选项，设置其过期时间；</li>
+<li>锁变量的值需要能区分来自不同客户端的加锁操作，以免在释放锁时，出现误释放操作，所以，我们使用 SET 命令设置锁变量值时，每个客户端设置的值是一个唯一值，用于标识客户端；</li>
+</ul>
+<p>满足这三个条件的分布式命令如下：<br>SET lock_key unique_value NX PX 10000  </p>
+<ul>
+<li>lock_key 就是 key 键；</li>
+<li>unique_value 是客户端生成的唯一的标识，区分来自不同客户端的锁操作；</li>
+<li>NX 代表只在 lock_key 不存在时，才对 lock_key 进行设置操作；</li>
+<li>PX 10000 表示设置 lock_key 的过期时间为 10s，这是为了避免客户端发生异常而无法释放锁。</li>
+</ul>
+<p>而解锁的过程就是将 lock_key 键删除（del lock_key），但不能乱删，要保证执行操作的客户端就是加锁的客户端。所以，解锁的时候，我们要先判断锁的 unique_value 是否为加锁客户端，是的话，才将 lock_key 键删除。<br>可以看到，解锁是有两个操作，这时就需要 Lua 脚本来保证解锁的原子性，因为 Redis 在执行 Lua 脚本时，可以以原子性的方式执行，保证了锁释放操作的原子性。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 释放锁时，先比较 unique_value 是否相等，避免锁的误释放</span></span><br><span class="line"><span class="keyword">if</span> redis.call(<span class="string">&quot;get&quot;</span>,KEYS[<span class="number">1</span>]) == ARGV[<span class="number">1</span>] then</span><br><span class="line">    <span class="keyword">return</span> redis.call(<span class="string">&quot;del&quot;</span>,KEYS[<span class="number">1</span>])</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">end</span><br></pre></td></tr></table></figure><br>这样一来，就通过使用 SET 命令和 Lua 脚本在 <strong>Redis 单节点</strong>上完成了分布式锁的加锁和解锁。<br>基于 Redis 实现分布式锁有什么优缺点？<br>基于 Redis 实现分布式锁的<strong>优点</strong>：</p>
+<ol>
+<li>性能高效（这是选择缓存实现分布式锁最核心的出发点）。</li>
+<li>实现方便。很多研发工程师选择使用 Redis 来实现分布式锁，很大成分上是因为 Redis 提供了 setnx 方法，实现分布式锁很方便。</li>
+<li>避免单点故障（因为 Redis 是跨集群部署的，自然就避免了单点故障）。</li>
+</ol>
+<p>基于 Redis 实现分布式锁的<strong>缺点</strong>：</p>
+<ul>
+<li><strong>超时时间不好设置</strong>。如果锁的超时时间设置过长，会影响性能，如果设置的超时时间过短会保护不到共享资源。比如在有些场景中，一个线程 A 获取到了锁之后，由于业务代码执行时间可能比较长，导致超过了锁的超时时间，自动失效，注意 A 线程没执行完，后续线程 B 又意外的持有了锁，意味着可以操作共享资源，那么两个线程之间的共享资源就没办法进行保护了。<ul>
+<li><strong>那么如何合理设置超时时间呢？</strong> 我们可以基于续约的方式设置超时时间：先给锁设置一个超时时间，然后启动一个守护线程，让守护线程在一段时间后，重新设置这个锁的超时时间。实现方式就是：写一个守护线程，然后去判断锁的情况，当锁快失效的时候，再次进行续约加锁，当主线程执行完成后，销毁续约锁即可，不过这种方式实现起来相对复杂。</li>
+</ul>
+</li>
+<li><strong>Redis 主从复制模式中的数据是异步复制的，这样导致分布式锁的不可靠性</strong>。如果在 Redis 主节点获取到锁后，在没有同步到其他节点时，Redis 主节点宕机了，此时新的 Redis 主节点依然可以获取锁，所以多个应用服务就可以同时获取到锁。</li>
+</ul>
+<p>Redis 如何解决集群情况下分布式锁的可靠性？<br>为了保证集群环境下分布式锁的可靠性，Redis 官方已经设计了一个分布式锁算法 Redlock（红锁）。<br>它是基于多个 Redis 节点的分布式锁，即使有节点发生了故障，锁变量仍然是存在的，客户端还是可以完成锁操作。<br>Redlock 算法的基本思路，<strong>是让客户端和多个独立的 Redis 节点依次请求申请加锁，如果客户端能够和半数以上的节点成功地完成加锁操作，那么我们就认为，客户端成功地获得分布式锁，否则加锁失败</strong>。<br>这样一来，即使有某个 Redis 节点发生故障，因为锁的数据在其他节点上也有保存，所以客户端仍然可以正常地进行锁操作，锁的数据也不会丢失。<br>Redlock 算法加锁三个过程：</p>
+<ul>
+<li>第一步是，客户端获取当前时间。</li>
+<li>第二步是，客户端按顺序依次向 N 个 Redis 节点执行加锁操作：<ul>
+<li>加锁操作使用 SET 命令，带上 NX，EX/PX 选项，以及带上客户端的唯一标识。</li>
+<li>如果某个 Redis 节点发生故障了，为了保证在这种情况下，Redlock 算法能够继续运行，我们需要给「加锁操作」设置一个超时时间（不是对「锁」设置超时时间，而是对「加锁操作」设置超时时间）。</li>
+</ul>
+</li>
+<li>第三步是，一旦客户端完成了和所有 Redis 节点的加锁操作，客户端就要计算整个加锁过程的总耗时（t1）。</li>
+</ul>
+<p>加锁成功要同时满足两个条件（<em>简述：如果有超过半数的 Redis 节点成功的获取到了锁，并且总耗时没有超过锁的有效时间，那么就是加锁成功</em>）：</p>
+<ul>
+<li>条件一：客户端从超过半数（大于等于 N/2+1）的 Redis 节点上成功获取到了锁；</li>
+<li>条件二：客户端获取锁的总耗时（t1）没有超过锁的有效时间。</li>
+</ul>
+<p>加锁成功后，客户端需要重新计算这把锁的有效时间，计算的结果是「锁的最初有效时间」减去「客户端为获取锁的总耗时（t1）」。<br>加锁失败后，客户端向所有 Redis 节点发起释放锁的操作，释放锁的操作和在单节点上释放锁的操作一样，只要执行释放锁的 Lua 脚本就可以了。</p>
+<h3 id="Redisson源码解析"><a href="#Redisson源码解析" class="headerlink" title="Redisson源码解析"></a>Redisson源码解析</h3><p>在获取锁成功后，给锁加一个 watchdog，watchdog 会起一个定时任务，在锁没有被释放且快要过期的时候会续期</p>
+<ul>
+<li>缓存续命<ul>
+<li>通过redisson新建出来的锁key，默认是30秒</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://cdn.nlark.com/yuque/0/2022/png/21371548/1648713306349-ef8723f7-e830-4bdc-a5cd-2e346dfe58b1.png#averageHue=%23faf7f5&amp;clientId=ud488f2a4-31f5-4&amp;crop=0&amp;crop=0&amp;crop=1&amp;crop=1&amp;from=paste&amp;height=310&amp;id=jZQCh&amp;margin=%5Bobject%20Object%5D&amp;name=image.png&amp;originHeight=387&amp;originWidth=634&amp;originalType=binary&amp;ratio=1&amp;rotation=0&amp;showTitle=false&amp;size=29984&amp;status=done&amp;style=none&amp;taskId=u56f6a589-1f06-4b8e-82e8-9d4c719ab93&amp;title=&amp;width=507.2" alt="image.png"></p>
+<ul>
+<li>加锁的逻辑会进入到scheduleExpirationRenewal</li>
+<li>这里面初始化了一个定时器，dely 的时间是 internalLockLeaseTime/3。</li>
+</ul>
+<p>在 Redisson 中，internalLockLeaseTime 是 30s，也就是每隔 10s 续期一次，每次 30s。</p>
+<ul>
+<li>客户端A加锁成功，就会启动一个watch dog看门狗，他是一个后台线程，会每隔10秒检查一下，如果客户端A还持有锁key，那么就会不断的延长锁key的生存时间，默认每次续命又从30秒新开始</li>
+</ul>
+<p><img src="https://cdn.nlark.com/yuque/0/2022/png/21371548/1648713570512-88b8e39e-f86c-46ac-bbc0-d4acfd1ffa4e.png#averageHue=%23fcf6f5&amp;clientId=ud488f2a4-31f5-4&amp;crop=0&amp;crop=0&amp;crop=1&amp;crop=1&amp;from=paste&amp;height=294&amp;id=Wsu1V&amp;margin=%5Bobject%20Object%5D&amp;name=image.png&amp;originHeight=367&amp;originWidth=814&amp;originalType=binary&amp;ratio=1&amp;rotation=0&amp;showTitle=false&amp;size=24478&amp;status=done&amp;style=none&amp;taskId=u3dc5952d-8c06-4e68-a6e2-91bbf647bed&amp;title=&amp;width=651.2" alt="image.png"></p>
+<ul>
+<li>加锁流程解释</li>
+</ul>
+<p><img src="https://cdn.nlark.com/yuque/0/2022/png/21371548/1648713775568-53ffa92c-70f0-425b-88cd-fff5b19893b0.png#averageHue=%23fdf9f7&amp;clientId=ud488f2a4-31f5-4&amp;crop=0&amp;crop=0&amp;crop=1&amp;crop=1&amp;from=paste&amp;height=340&amp;id=jSWPo&amp;margin=%5Bobject%20Object%5D&amp;name=image.png&amp;originHeight=425&amp;originWidth=1110&amp;originalType=binary&amp;ratio=1&amp;rotation=0&amp;showTitle=false&amp;size=119076&amp;status=done&amp;style=none&amp;taskId=u73d926f3-ffc3-4dd0-bc56-2ffcc8a6406&amp;title=&amp;width=888" alt="image.png"></p>
+<ul>
+<li>通过exists判断，如果锁不存在，则设置值和过期时间，加锁成功</li>
+<li>通过hexists判断，如果锁已存在，并且锁的是当前线程，则证明是重入锁，加锁成功</li>
+<li>如果锁已存在，但锁的不是当前线程，则证明有其他线程持有锁。</li>
+</ul>
+<p>返回当前锁的过期时间(代表了lockzzyy这个锁key的剩余生存时间)，加锁失败<br><img src="https://cdn.nlark.com/yuque/0/2022/png/21371548/1648713831802-1634b987-6608-4eed-bbc8-59d40c840e40.png#averageHue=%23fbf5f4&amp;clientId=ud488f2a4-31f5-4&amp;crop=0&amp;crop=0&amp;crop=1&amp;crop=1&amp;from=paste&amp;height=170&amp;id=fi04U&amp;margin=%5Bobject%20Object%5D&amp;name=image.png&amp;originHeight=212&amp;originWidth=553&amp;originalType=binary&amp;ratio=1&amp;rotation=0&amp;showTitle=false&amp;size=18432&amp;status=done&amp;style=none&amp;taskId=u76e6d89e-215e-4345-bbca-9fc0590683b&amp;title=&amp;width=442.4" alt="image.png"></p>
+<h1 id="九、redis实现分布式锁"><a href="#九、redis实现分布式锁" class="headerlink" title="九、redis实现分布式锁"></a>九、redis实现分布式锁</h1><h2 id="演变过程："><a href="#演变过程：" class="headerlink" title="演变过程："></a>演变过程：</h2><ol>
+<li><strong>使用synchronized或加ReentrantLock</strong></li>
+</ol>
+<p><img src="https://cdn.nlark.com/yuque/0/2022/png/21371548/1648712058090-1631135e-b073-4c7e-8404-76b4e4530059.png#averageHue=%23fdfcfb&amp;clientId=ud488f2a4-31f5-4&amp;crop=0&amp;crop=0&amp;crop=1&amp;crop=1&amp;from=paste&amp;height=313&amp;id=yBfjG&amp;margin=%5Bobject%20Object%5D&amp;name=image.png&amp;originHeight=391&amp;originWidth=860&amp;originalType=binary&amp;ratio=1&amp;rotation=0&amp;showTitle=false&amp;size=24793&amp;status=done&amp;style=none&amp;taskId=u46bf712f-d22f-4234-810a-35feb0ba62f&amp;title=&amp;width=688" alt="image.png"><br>问题：在单机环境下，可以使用synchronized或Lock来实现。<br>但是在分布式系统中，因为竞争的线程可能不在同一个节点上（同一个jvm中），<br>所以需要一个让所有进程都能访问到的锁来实现(比如redis或者zookeeper来构建)<br>不同进程jvm层面的锁就不管用了，那么可以利用第三方的一个组件，来获取锁，未获取到锁，则阻塞当前想要运行的线程<br><strong>基于单个 Redis 节点实现分布式锁</strong></p>
+<ol>
+<li><strong>redis setnx</strong></li>
+</ol>
+<p><img src="https://cdn.nlark.com/yuque/0/2022/png/21371548/1648712190688-2b8a55f7-b1ad-4d59-a0f6-88af403ddc62.png#averageHue=%23fdfaf9&amp;clientId=ud488f2a4-31f5-4&amp;crop=0&amp;crop=0&amp;crop=1&amp;crop=1&amp;from=paste&amp;height=430&amp;id=RQgTz&amp;margin=%5Bobject%20Object%5D&amp;name=image.png&amp;originHeight=538&amp;originWidth=942&amp;originalType=binary&amp;ratio=1&amp;rotation=0&amp;showTitle=false&amp;size=47854&amp;status=done&amp;style=none&amp;taskId=u884e00f1-85b2-43e7-ae22-2a524ddf4af&amp;title=&amp;width=753.6" alt="image.png"><br>问题：出异常的话，可能无法释放锁，必须要在代码层面finally释放锁</p>
+<ol>
+<li><strong>加锁解锁，lock/unlock必须同时出现并保证调用</strong></li>
+</ol>
+<p><img src="https://cdn.nlark.com/yuque/0/2022/png/21371548/1648712248798-b963de90-837c-48a9-b19a-16edc1208f1f.png#averageHue=%23fef5f4&amp;clientId=ud488f2a4-31f5-4&amp;crop=0&amp;crop=0&amp;crop=1&amp;crop=1&amp;from=paste&amp;height=60&amp;id=nuCrG&amp;margin=%5Bobject%20Object%5D&amp;name=image.png&amp;originHeight=75&amp;originWidth=398&amp;originalType=binary&amp;ratio=1&amp;rotation=0&amp;showTitle=false&amp;size=2898&amp;status=done&amp;style=none&amp;taskId=udd64085e-e5a0-481f-a7bb-fd53b70ca6d&amp;title=&amp;width=318.4" alt="image.png"></p>
+<ol>
+<li><strong>部署了微服务jar包的机器挂了，代码层面根本没有走到finally这块，</strong></li>
+</ol>
+<p><strong>没办法保证解锁，这个key没有被删除，需要加入一个过期时间限定key</strong><br><img src="https://cdn.nlark.com/yuque/0/2022/png/21371548/1648712273024-25bfa158-235f-4455-9361-a80cb0d2efdb.png#averageHue=%23fef5f4&amp;clientId=ud488f2a4-31f5-4&amp;crop=0&amp;crop=0&amp;crop=1&amp;crop=1&amp;from=paste&amp;height=81&amp;id=m1Glp&amp;margin=%5Bobject%20Object%5D&amp;name=image.png&amp;originHeight=101&amp;originWidth=752&amp;originalType=binary&amp;ratio=1&amp;rotation=0&amp;showTitle=false&amp;size=7012&amp;status=done&amp;style=none&amp;taskId=uc7cedbed-9fb8-4528-aaff-2259b3cfafe&amp;title=&amp;width=601.6" alt="image.png"></p>
+<ol>
+<li><strong>设置key+过期时间分开了，必须要合并成一行具备原子性</strong></li>
+</ol>
+<p><img src="https://cdn.nlark.com/yuque/0/2022/png/21371548/1648712296119-5e7f7cba-6f57-4145-83d0-e2b9e6e1175e.png#averageHue=%23fef7f5&amp;clientId=ud488f2a4-31f5-4&amp;crop=0&amp;crop=0&amp;crop=1&amp;crop=1&amp;from=paste&amp;height=65&amp;id=XBy0V&amp;margin=%5Bobject%20Object%5D&amp;name=image.png&amp;originHeight=81&amp;originWidth=809&amp;originalType=binary&amp;ratio=1&amp;rotation=0&amp;showTitle=false&amp;size=5637&amp;status=done&amp;style=none&amp;taskId=u19a0991c-3eba-4039-bc67-c7fff9831f0&amp;title=&amp;width=647.2" alt="image.png"></p>
+<ol>
+<li><strong>张冠李戴，删除了别人的锁</strong></li>
+</ol>
+<p><img src="https://cdn.nlark.com/yuque/0/2022/png/21371548/1648712323105-ab84a647-4418-4b22-9a8a-62b0664be8cd.png#averageHue=%23fef7f6&amp;clientId=ud488f2a4-31f5-4&amp;crop=0&amp;crop=0&amp;crop=1&amp;crop=1&amp;from=paste&amp;height=86&amp;id=JI4wh&amp;margin=%5Bobject%20Object%5D&amp;name=image.png&amp;originHeight=107&amp;originWidth=695&amp;originalType=binary&amp;ratio=1&amp;rotation=0&amp;showTitle=false&amp;size=6117&amp;status=done&amp;style=none&amp;taskId=u7416e73c-288a-4291-ae8e-bd2195e0666&amp;title=&amp;width=556" alt="image.png"></p>
+<ol>
+<li><strong>finally块的判断+del删除操作不是原子性的，Redis调用Lua脚本通过eval命令保证代码执行的原子性</strong></li>
+</ol>
+<p><img src="https://cdn.nlark.com/yuque/0/2022/png/21371548/1648712360995-a32d9417-36b0-464b-8e2e-d9aeebd56241.png#averageHue=%23fef9f8&amp;clientId=ud488f2a4-31f5-4&amp;crop=0&amp;crop=0&amp;crop=1&amp;crop=1&amp;from=paste&amp;height=387&amp;id=QXsxB&amp;margin=%5Bobject%20Object%5D&amp;name=image.png&amp;originHeight=484&amp;originWidth=795&amp;originalType=binary&amp;ratio=1&amp;rotation=0&amp;showTitle=false&amp;size=25311&amp;status=done&amp;style=none&amp;taskId=u4e082b19-1617-4713-8357-f1bb2dbe4c5&amp;title=&amp;width=636" alt="image.png"><br>截止到这里，基于单个Redis节点实现分布式锁</p>
+<h2 id="Redis分布式锁-Redlock算法"><a href="#Redis分布式锁-Redlock算法" class="headerlink" title="Redis分布式锁-Redlock算法"></a>Redis分布式锁-Redlock算法</h2><p>Redisson是java的redis客户端之一，提供了一些api方便操作redis<br>多机案例：<br><strong>1. 基于setnx的分布式锁有什么缺点？</strong><br><img src="https://cdn.nlark.com/yuque/0/2022/png/21371548/1648712578588-08416c50-53e9-4e4c-b3dc-e50fa17840ad.png#averageHue=%23f6f3df&amp;clientId=ud488f2a4-31f5-4&amp;crop=0&amp;crop=0&amp;crop=1&amp;crop=1&amp;from=paste&amp;height=306&amp;id=jb67Y&amp;margin=%5Bobject%20Object%5D&amp;name=image.png&amp;originHeight=383&amp;originWidth=982&amp;originalType=binary&amp;ratio=1&amp;rotation=0&amp;showTitle=false&amp;size=61747&amp;status=done&amp;style=none&amp;taskId=ub640ef54-cb85-4368-811a-cace3a5bb54&amp;title=&amp;width=785.6" alt="image.png"></p>
+<p>线程 1 首先获取锁成功，将键值对写入 redis 的 master 节点；<br>在 redis 将该键值对同步到 slave 节点之前，master 发生了故障；<br>redis 触发故障转移，其中一个 slave 升级为新的 master；<br>此时新的 master 并不包含线程 1 写入的键值对，因此线程 2 尝试获取锁也可以成功拿到锁；<br>此时相当于有两个线程获取到了锁，可能会导致各种预期之外的情况发生，例如最常见的脏数据。<br> 我们加的是排它独占锁，同一时间只能有一个建redis锁成功并持有锁，严禁出现2个以上的请求线程拿到锁。危险的</p>
+<p><strong>redis之父提出了Redlock算法解决这个问题：</strong><br>Redis也提供了Redlock算法，用来实现基于多个实例的分布式锁。<br>锁变量由多个实例维护，即使有实例发生了故障，锁变量仍然是存在的，客户端还是可以完成锁操作。Redlock算法是实现高可靠分布式锁的一种有效解决方案，可以在实际开发中使用。<br><strong>2. Redlock算法设计理念</strong><br><strong>设计理念</strong>：该方案也是基于（set 加锁、Lua 脚本解锁）进行改良的，所以redis之父antirez 只描述了差异的地方，大致方案如下。<br>假设我们有N个Redis主节点，例如 N = 5这些节点是完全独立的，我们不使用复制或任何其他隐式协调系统，<br>为了取到锁客户端执行以下操作：</p>
+<ol>
+<li>获取当前时间，以毫秒为单位；</li>
+<li>依次尝试从5个实例，使用相同的 key 和随机值（例如 UUID）获取锁。当向Redis 请求获取锁时，客户端应该设置一个超时时间，这个超时时间应该小于锁的失效时间。</li>
+<li>客户端通过当前时间减去步骤 1 记录的时间来计算获取锁使用的时间。当且仅当从大多数（N/2+1，这里是 3 个节点）的 Redis 节点都取到锁，并且获取锁使用的时间小于锁失效时间时，锁才算获取成功；</li>
+<li>如果取到了锁，其真正有效时间等于初始有效时间减去获取锁所使用的时间（步骤 3 计算的结果）。</li>
+<li>如果由于某些原因未能获得锁（无法在至少 N/2 + 1 个 Redis 实例获取锁、或获取锁的时间超过了有效时间），客户端应该在所有的 Redis 实例上进行解锁（即便某些Redis实例根本就没有加锁成功，防止某些节点获取到锁但是客户端没有得到响应而导致接下来的一段时间不能被重新获取锁）。</li>
+</ol>
+<p>该方案为了解决数据不一致的问题，直接舍弃了异步复制只使用 master 节点，同时由于舍弃了 slave，为了保证可用性，引入了 N 个节点，官方建议是 5。<br>客户端只有在满足下面的这两个条件时，才能认为是加锁成功。<br>条件1：客户端从超过半数（大于等于N/2+1）的Redis实例上成功获取到了锁；<br>条件2：客户端获取锁的总耗时没有超过锁的有效时间。<br><strong>解决方案：</strong><br>为什么是奇数？  N = 2X + 1   (N是最终部署机器数，X是容错机器数)<br>1 先知道什么是容错<br>  失败了多少个机器实例后我还是可以容忍的，所谓的容忍就是数据一致性还是可以Ok的，CP数据一致性还是可以满足<br>  加入在集群环境中，redis失败1台，可接受。2X+1 = 2 <em> 1+1 =3，部署3台，死了1个剩下2个可以正常工作，那就部署3台。<br>  加入在集群环境中，redis失败2台，可接受。2X+1 = 2 </em> 2+1 =5，部署5台，死了2个剩下3个可以正常工作，那就部署5台。<br>2 为什么是奇数？<br>   最少的机器，最多的产出效果<br>  加入在集群环境中，redis失败1台，可接受。2N+2= 2 <em> 1+2 =4，部署4台<br>  加入在集群环境中，redis失败2台，可接受。2N+2 = 2 </em> 2+2 =6，部署6台<br><strong> 执行步骤</strong><br><strong>第一步是，客户端获取当前时间。</strong><br><strong>第二步是，客户端按顺序依次向 N 个 Redis 实例执行加锁操作。</strong><br>这里的加锁操作和在单实例上执行的加锁操作一样，使用 SET 命令，带上 NX，EX/PX 选项，以及带上客户端的唯一标识。当然，如果某个 Redis 实例发生故障了，为了保证在这种情况下，Redlock 算法能够继续运行，我们需要给加锁操作设置一个超时时间。<br>如果客户端在和一个 Redis 实例请求加锁时，一直到超时都没有成功，那么此时，客户端会和下一个 Redis 实例继续请求加锁。加锁操作的超时时间需要远远地小于锁的有效时间，一般也就是设置为几十毫秒。<br><strong>第三步是，一旦客户端完成了和所有 Redis 实例的加锁操作，客户端就要计算整个加锁过程的总耗时。</strong><br>客户端只有在满足下面的这两个条件时，才能认为是加锁成功。</p>
+<ul>
+<li>条件一：客户端从超过半数（大于等于 N/2+1）的 Redis 实例上成功获取到了锁；</li>
+<li>条件二：客户端获取锁的总耗时没有超过锁的有效时间。</li>
+</ul>
+<p>在满足了这两个条件后，我们需要重新计算这把锁的有效时间，计算的结果是锁的最初有效时间减去客户端为获取锁的总耗时。如果锁的有效时间已经来不及完成共享数据的操作了，我们可以释放锁，以免出现还没完成数据操作，锁就过期了的情况。当然，如果客户端在和所有实例执行完加锁操作后，没能同时满足这两个条件，那么，客户端向所有 Redis 节点发起释放锁的操作。在 Redlock 算法中，释放锁的操作和在单实例上释放锁的操作一样，只要执行释放锁的 Lua 脚本就可以了。这样一来，只要 N 个 Redis 实例中的半数以上实例能正常工作，就能保证分布式锁的正常工作了。所以，在实际的业务应用中，如果你想要提升分布式锁的可靠性，就可以通过 Redlock 算法来实现。<br><strong>3. Redisson源码解析</strong><br>在获取锁成功后，给锁加一个 watchdog，watchdog 会起一个定时任务，在锁没有被释放且快要过期的时候会续期</p>
+<ul>
+<li>缓存续命<ul>
+<li>通过redisson新建出来的锁key，默认是30秒</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://cdn.nlark.com/yuque/0/2022/png/21371548/1648713306349-ef8723f7-e830-4bdc-a5cd-2e346dfe58b1.png#averageHue=%23faf7f5&amp;clientId=ud488f2a4-31f5-4&amp;crop=0&amp;crop=0&amp;crop=1&amp;crop=1&amp;from=paste&amp;height=310&amp;id=quW5b&amp;margin=%5Bobject%20Object%5D&amp;name=image.png&amp;originHeight=387&amp;originWidth=634&amp;originalType=binary&amp;ratio=1&amp;rotation=0&amp;showTitle=false&amp;size=29984&amp;status=done&amp;style=none&amp;taskId=u56f6a589-1f06-4b8e-82e8-9d4c719ab93&amp;title=&amp;width=507.2" alt="image.png"></p>
+<ul>
+<li>加锁的逻辑会进入到scheduleExpirationRenewal</li>
+<li>这里面初始化了一个定时器，dely 的时间是 internalLockLeaseTime/3。</li>
+</ul>
+<p>在 Redisson 中，internalLockLeaseTime 是 30s，也就是每隔 10s 续期一次，每次 30s。</p>
+<ul>
+<li>客户端A加锁成功，就会启动一个watch dog看门狗，他是一个后台线程，会每隔10秒检查一下，如果客户端A还持有锁key，那么就会不断的延长锁key的生存时间，默认每次续命又从30秒新开始</li>
+</ul>
+<p><img src="https://cdn.nlark.com/yuque/0/2022/png/21371548/1648713570512-88b8e39e-f86c-46ac-bbc0-d4acfd1ffa4e.png#averageHue=%23fcf6f5&amp;clientId=ud488f2a4-31f5-4&amp;crop=0&amp;crop=0&amp;crop=1&amp;crop=1&amp;from=paste&amp;height=294&amp;id=e7PJb&amp;margin=%5Bobject%20Object%5D&amp;name=image.png&amp;originHeight=367&amp;originWidth=814&amp;originalType=binary&amp;ratio=1&amp;rotation=0&amp;showTitle=false&amp;size=24478&amp;status=done&amp;style=none&amp;taskId=u3dc5952d-8c06-4e68-a6e2-91bbf647bed&amp;title=&amp;width=651.2" alt="image.png"></p>
+<ul>
+<li>加锁流程解释</li>
+</ul>
+<p><img src="https://cdn.nlark.com/yuque/0/2022/png/21371548/1648713775568-53ffa92c-70f0-425b-88cd-fff5b19893b0.png#averageHue=%23fdf9f7&amp;clientId=ud488f2a4-31f5-4&amp;crop=0&amp;crop=0&amp;crop=1&amp;crop=1&amp;from=paste&amp;height=340&amp;id=TOaPC&amp;margin=%5Bobject%20Object%5D&amp;name=image.png&amp;originHeight=425&amp;originWidth=1110&amp;originalType=binary&amp;ratio=1&amp;rotation=0&amp;showTitle=false&amp;size=119076&amp;status=done&amp;style=none&amp;taskId=u73d926f3-ffc3-4dd0-bc56-2ffcc8a6406&amp;title=&amp;width=888" alt="image.png"></p>
+<ul>
+<li>通过exists判断，如果锁不存在，则设置值和过期时间，加锁成功</li>
+<li>通过hexists判断，如果锁已存在，并且锁的是当前线程，则证明是重入锁，加锁成功</li>
+<li>如果锁已存在，但锁的不是当前线程，则证明有其他线程持有锁。</li>
+</ul>
+<p>返回当前锁的过期时间(代表了lockzzyy这个锁key的剩余生存时间)，加锁失败<br><img src="https://cdn.nlark.com/yuque/0/2022/png/21371548/1648713831802-1634b987-6608-4eed-bbc8-59d40c840e40.png#averageHue=%23fbf5f4&amp;clientId=ud488f2a4-31f5-4&amp;crop=0&amp;crop=0&amp;crop=1&amp;crop=1&amp;from=paste&amp;height=170&amp;id=qoHHT&amp;margin=%5Bobject%20Object%5D&amp;name=image.png&amp;originHeight=212&amp;originWidth=553&amp;originalType=binary&amp;ratio=1&amp;rotation=0&amp;showTitle=false&amp;size=18432&amp;status=done&amp;style=none&amp;taskId=u76e6d89e-215e-4345-bbca-9fc0590683b&amp;title=&amp;width=442.4" alt="image.png"></p>
+<h2 id="Redis-如何实现延迟队列？"><a href="#Redis-如何实现延迟队列？" class="headerlink" title="Redis 如何实现延迟队列？"></a>Redis 如何实现延迟队列？</h2><p>延迟队列是指把当前要做的事情，往后推迟一段时间再做。延迟队列的常见使用场景有以下几种：</p>
+<ul>
+<li>在淘宝、京东等购物平台上下单，超过一定时间未付款，订单会自动取消；</li>
+<li>打车的时候，在规定时间没有车主接单，平台会取消你的单并提醒你暂时没有车主接单；</li>
+<li>点外卖的时候，如果商家在10分钟还没接单，就会自动取消订单；</li>
+</ul>
+<p>在 Redis 可以使用有序集合（ZSet）的方式来实现延迟消息队列的，ZSet 有一个 Score 属性可以用来存储延迟执行的时间。<br>使用 zadd score1 value1 命令就可以一直往内存中生产消息。再利用 zrangebysocre 查询符合条件的所有待处理的任务， 通过循环执行队列任务即可。<br><img src="https://cdn.nlark.com/yuque/0/2022/png/21371548/1658646467285-57b96fe1-5be0-4d8c-ae07-f6b37148ed8a.png#averageHue=%23f0f0f0&amp;clientId=u1ab4fe20-72cf-4&amp;crop=0&amp;crop=0&amp;crop=1&amp;crop=1&amp;from=paste&amp;id=u9997cc03&amp;margin=%5Bobject%20Object%5D&amp;name=image.png&amp;originHeight=145&amp;originWidth=632&amp;originalType=url&amp;ratio=1&amp;rotation=0&amp;showTitle=false&amp;size=43357&amp;status=done&amp;style=none&amp;taskId=u4a845c6b-a274-43a8-9be0-67036e5548f&amp;title=" alt="image.png"></p>
+<h2 id="Redis的大-key-如何处理？"><a href="#Redis的大-key-如何处理？" class="headerlink" title="Redis的大 key 如何处理？"></a>Redis的大 key 如何处理？</h2><p>什么是 Redis 大 key？<br>大 key 并不是指 key 的值很大，而是 key 对应的 value 很大。<br>一般而言，下面这两种情况被称为大 key：</p>
+<ul>
+<li>String 类型的值大于 10 KB；</li>
+<li>Hash、List、Set、ZSet 元素的个数超过 5000个；</li>
+</ul>
+<p>如何找到大 key ？<br><em><strong>1、redis-cli —bigkeys 查找大key</strong></em><br>可以通过 redis-cli —bigkeys 命令查找大 key：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-cli -h <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span> -p6379 -a <span class="string">&quot;password&quot;</span> -- bigkeys</span><br></pre></td></tr></table></figure><br>使用的时候注意事项：</p>
+<ul>
+<li>最好选择在从节点上执行该命令。因为主节点上执行时，会阻塞主节点；</li>
+<li>如果没有从节点，那么可以选择在 Redis 实例业务压力的低峰阶段进行扫描查询，以免影响到实例的正常运行；或者可以使用 -i 参数控制扫描间隔，避免长时间扫描降低 Redis 实例的性能。</li>
+</ul>
+<p>该方式的不足之处：</p>
+<ul>
+<li>这个方法只能返回每种类型中最大的那个 bigkey，无法得到大小排在前 N 位的 bigkey；</li>
+<li>对于集合类型来说，这个方法只统计集合元素个数的多少，而不是实际占用的内存量。但是，一个集合中的元素个数多，并不一定占用的内存就多。因为，有可能每个元素占用的内存很小，这样的话，即使元素个数有很多，总内存开销也不大；</li>
+</ul>
+<p><em><strong>2、使用 SCAN 命令查找大key</strong></em><br>使用 SCAN 命令对数据库扫描，然后用 TYPE 命令获取返回的每一个 key 的类型。<br>对于 String 类型，可以直接使用 STRLEN 命令获取字符串的长度，也就是占用的内存空间字节数。<br>对于集合类型来说，有两种方法可以获得它占用的内存大小：</p>
+<ul>
+<li>如果能够预先从业务层知道集合元素的平均大小，那么，可以使用下面的命令获取集合元素的个数，然后乘以集合元素的平均大小，这样就能获得集合占用的内存大小了。List 类型：LLEN 命令；Hash 类型：HLEN 命令；Set 类型：SCARD 命令；Sorted Set 类型：ZCARD 命令；</li>
+<li>如果不能提前知道写入集合的元素大小，可以使用 MEMORY USAGE 命令（需要 Redis 4.0 及以上版本），查询一个键值对占用的内存空间。</li>
+</ul>
+<p><em><strong>3、使用 RdbTools 工具查找大 key</strong></em><br>另外，可以使用 RdbTools 工具，比如下面这条命令，将大于 10 kb 的  key  输出到一个表格文件。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rdb dump.rdb -c memory --bytes <span class="number">10240</span> -f redis.csv</span><br></pre></td></tr></table></figure><br>如何删除大 key？<br>删除操作的本质是要释放键值对占用的内存空间。不要小瞧内存的释放过程。释放内存只是第一步，为了更加高效地管理内存空间，在应用程序释放内存时，操作系统需要把释放掉的内存块插入一个空闲内存块的链表，以便后续进行管理和再分配。这个过程本身需要一定时间，而且会阻塞当前释放内存的应用程序。<br>所以，如果一下子释放了大量内存，空闲内存块链表操作时间就会增加，相应地就会造成 Redis 主线程的阻塞，如果主线程发生了阻塞，其他所有请求可能都会超时，超时越来越多，会造成 Redis 连接耗尽，产生各种异常。<br>我们可以采用<strong>分批次删除</strong>的方式：</p>
+<ul>
+<li>对于 Hash，使用 hscan 扫描法；</li>
+<li>对于 Set，采用 srandmember 每次随机取数据进程删除；</li>
+<li>对于 ZSet，可以使用 zremrangebyrank 命令直接删除；</li>
+<li>对于 List，直接 pop 即可了；</li>
+</ul>
+<p>另外，也可以采用<strong>异步删除</strong>法，用 unlink 命令代替 del 来删除，这样 Redis 会讲这个 key 放入到一个异步线程中进行删除，这样不会阻塞主线程。</p>
+<h2 id="Redis-管道有什么用？"><a href="#Redis-管道有什么用？" class="headerlink" title="Redis 管道有什么用？"></a>Redis 管道有什么用？</h2><p>管道技术（Pipeline）是客户端提供的一种批处理技术，用于一次处理多个 Redis 命令，从而提高整个交互的性能。<br>普通命令模式，如下图所示：<br><img src="https://cdn.nlark.com/yuque/0/2022/png/21371548/1658646467351-03b26cf2-fbd1-4ddb-a067-83254d72f1a0.png#averageHue=%23f2eddb&amp;clientId=u1ab4fe20-72cf-4&amp;crop=0&amp;crop=0&amp;crop=1&amp;crop=1&amp;from=paste&amp;id=u54a222d3&amp;margin=%5Bobject%20Object%5D&amp;name=image.png&amp;originHeight=360&amp;originWidth=804&amp;originalType=url&amp;ratio=1&amp;rotation=0&amp;showTitle=false&amp;size=41873&amp;status=done&amp;style=none&amp;taskId=udc2bf0b9-3d74-4ff3-a0dc-a4846288fac&amp;title=" alt="image.png"><br>管道模式，如下图所示：<br><img src="https://cdn.nlark.com/yuque/0/2022/png/21371548/1658646467364-fd9470ea-8e7b-4790-a9fe-a0009e1c053b.png#averageHue=%23f3eedb&amp;clientId=u1ab4fe20-72cf-4&amp;crop=0&amp;crop=0&amp;crop=1&amp;crop=1&amp;from=paste&amp;id=u481b8a4e&amp;margin=%5Bobject%20Object%5D&amp;name=image.png&amp;originHeight=360&amp;originWidth=804&amp;originalType=url&amp;ratio=1&amp;rotation=0&amp;showTitle=false&amp;size=39824&amp;status=done&amp;style=none&amp;taskId=u25c0a940-a535-4811-a7fb-121db0aa360&amp;title=" alt="image.png"><br>使用<strong>管道技术可以解决多个命令执行时的网络等待</strong>，它是把多个命令整合到一起发送给服务器端处理之后统一返回给客户端，这样就免去了每条命令执行后都要等待的情况，从而有效地提高了程序的执行效率。<br>但使用管道技术也要注意避免发送的命令过大，或管道内的数据太多而导致的网络阻塞。<br>要注意的是，管道技术本质上是客户端提供的功能，而非 Redis 服务器端的功能。</p>
+<h2 id="Redis-事务支持回滚吗？"><a href="#Redis-事务支持回滚吗？" class="headerlink" title="Redis 事务支持回滚吗？"></a>Redis 事务支持回滚吗？</h2><p>MySQL 在执行事务时，会提供回滚机制，当事务执行发生错误时，事务中的所有操作都会撤销，已经修改的数据也会被恢复到事务执行前的状态。<br><strong>Redis 中并没有提供回滚机制</strong>，虽然 Redis 提供了 DISCARD 命令，但是这个命令只能用来主动放弃事务执行，把暂存的命令队列清空，起不到回滚的效果。<br>下面是 DISCARD 命令用法：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">#读取 count 的值<span class="number">4</span></span><br><span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; GET count</span><br><span class="line"><span class="string">&quot;1&quot;</span></span><br><span class="line">#开启事务</span><br><span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; MULTI </span><br><span class="line">OK</span><br><span class="line">#发送事务的第一个操作，对count减<span class="number">1</span></span><br><span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; DECR count</span><br><span class="line">QUEUED</span><br><span class="line">#执行DISCARD命令，主动放弃事务</span><br><span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; DISCARD</span><br><span class="line">OK</span><br><span class="line">#再次读取a:stock的值，值没有被修改</span><br><span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; GET count</span><br><span class="line"><span class="string">&quot;1&quot;</span></span><br></pre></td></tr></table></figure><br>事务执行过程中，如果命令入队时没报错，而事务提交后，实际执行时报错了，正确的命令依然可以正常执行，所以这可以看出 <strong>Redis 并不一定保证原子性</strong>（原子性：事务中的命令要不全部成功，要不全部失败）。<br>比如下面这个例子：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">#获取name原本的值</span><br><span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; GET name</span><br><span class="line"><span class="string">&quot;xiaolin&quot;</span></span><br><span class="line">#开启事务</span><br><span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; MULTI</span><br><span class="line">OK</span><br><span class="line">#设置新值</span><br><span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>(TX)&gt; GET name xialincoding</span><br><span class="line">QUEUED</span><br><span class="line">#注意，这条命令是错误的</span><br><span class="line"><span class="meta"># expire 过期时间正确来说是数字，并不是‘10s’字符串，但是还是入队成功了</span></span><br><span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>(TX)&gt; EXPIRE name <span class="number">10</span>s</span><br><span class="line">QUEUED</span><br><span class="line">#提交事务，执行报错</span><br><span class="line">#可以看到 <span class="built_in">set</span> 执行成功，而 expire 执行错误。</span><br><span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>(TX)&gt; EXEC</span><br><span class="line"><span class="number">1</span>) OK</span><br><span class="line"><span class="number">2</span>) (error) ERR value is not an integer or out of range</span><br><span class="line">#可以看到，name 还是被设置为新值了</span><br><span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; GET name</span><br><span class="line"><span class="string">&quot;xialincoding&quot;</span></span><br></pre></td></tr></table></figure><br>为什么Redis 不支持事务回滚？<br>Redis <a target="_blank" rel="noopener" href="https://redis.io/topics/transactions">官方文档(opens new window)</a>的解释如下：<br><img src="https://cdn.nlark.com/yuque/0/2022/png/21371548/1658646468093-27aed757-279c-494b-88fa-b105581c1345.png#averageHue=%23fefbf8&amp;clientId=u1ab4fe20-72cf-4&amp;crop=0&amp;crop=0&amp;crop=1&amp;crop=1&amp;from=paste&amp;id=u27fe29e5&amp;margin=%5Bobject%20Object%5D&amp;name=image.png&amp;originHeight=792&amp;originWidth=1500&amp;originalType=url&amp;ratio=1&amp;rotation=0&amp;showTitle=false&amp;size=923400&amp;status=done&amp;style=none&amp;taskId=u15b8ff03-e562-443e-a8c0-3282f566691&amp;title=" alt="image.png"><br>大概的意思是，作者不支持事务回滚的原因有以下两个：</p>
+<ul>
+<li>他认为 Redis 事务的执行时，错误通常都是编程错误造成的，这种错误通常只会出现在开发环境中，而很少会在实际的生产环境中出现，所以他认为没有必要为 Redis 开发事务回滚功能；</li>
+<li>不支持事务回滚是因为这种复杂的功能和 Redis 追求的简单高效的设计主旨不符合。</li>
+</ul>
+<p>这里不支持事务回滚，指的是不支持事务运行时错误的事务回滚。</p>
+<h2 id=""><a href="#" class="headerlink" title=" "></a> </h2></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="http://example.com">FettersLove</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="http://example.com/2022/08/09/redis/%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81/">http://example.com/2022/08/09/redis/%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://edu-fly.oss-cn-beijing.aliyuncs.com/hexo-blog/cover/QQ%E5%9B%BE%E7%89%8720221113173833.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://edu-fly.oss-cn-beijing.aliyuncs.com/QQ%E5%9B%BE%E7%89%8720221110180115.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">FettersLove</div><div class="author-info__description">从来没憎恨过谁，只是想成为最强的</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">19</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">4</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/FettersLove"><i></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/fetterslove-blog" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:fetterslove2y@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E7%94%A8-Redis-%E5%AE%9E%E7%8E%B0%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E7%9A%84%EF%BC%9F"><span class="toc-number">1.</span> <span class="toc-text">如何用 Redis 实现分布式锁的？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Redisson%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90"><span class="toc-number">1.1.</span> <span class="toc-text">Redisson源码解析</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B9%9D%E3%80%81redis%E5%AE%9E%E7%8E%B0%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81"><span class="toc-number"></span> <span class="toc-text">九、redis实现分布式锁</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%94%E5%8F%98%E8%BF%87%E7%A8%8B%EF%BC%9A"><span class="toc-number">1.</span> <span class="toc-text">演变过程：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81-Redlock%E7%AE%97%E6%B3%95"><span class="toc-number">2.</span> <span class="toc-text">Redis分布式锁-Redlock算法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis-%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E5%BB%B6%E8%BF%9F%E9%98%9F%E5%88%97%EF%BC%9F"><span class="toc-number">3.</span> <span class="toc-text">Redis 如何实现延迟队列？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis%E7%9A%84%E5%A4%A7-key-%E5%A6%82%E4%BD%95%E5%A4%84%E7%90%86%EF%BC%9F"><span class="toc-number">4.</span> <span class="toc-text">Redis的大 key 如何处理？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis-%E7%AE%A1%E9%81%93%E6%9C%89%E4%BB%80%E4%B9%88%E7%94%A8%EF%BC%9F"><span class="toc-number">5.</span> <span class="toc-text">Redis 管道有什么用？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis-%E4%BA%8B%E5%8A%A1%E6%94%AF%E6%8C%81%E5%9B%9E%E6%BB%9A%E5%90%97%EF%BC%9F"><span class="toc-number">6.</span> <span class="toc-text">Redis 事务支持回滚吗？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">7.</span> <span class="toc-text"> </span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/08/09/java/Java%E5%9F%BA%E7%A1%80/" title="Java基础"><img src="https://edu-fly.oss-cn-beijing.aliyuncs.com/hexo-blog/cover/QQ%E5%9B%BE%E7%89%8720221113180052.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Java基础"/></a><div class="content"><a class="title" href="/2022/08/09/java/Java%E5%9F%BA%E7%A1%80/" title="Java基础">Java基础</a><time datetime="2022-08-08T16:00:00.000Z" title="Created 2022-08-09 00:00:00">2022-08-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/08/09/MySQL/%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%E7%AF%87/" title="存储引擎篇"><img src="https://edu-fly.oss-cn-beijing.aliyuncs.com/hexo-blog/cover/QQ%E5%9B%BE%E7%89%8720221113173833.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="存储引擎篇"/></a><div class="content"><a class="title" href="/2022/08/09/MySQL/%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%E7%AF%87/" title="存储引擎篇">存储引擎篇</a><time datetime="2022-08-08T16:00:00.000Z" title="Created 2022-08-09 00:00:00">2022-08-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/08/09/redis/%E5%9F%BA%E7%A1%80%E7%AF%87/" title="基础篇"><img src="https://edu-fly.oss-cn-beijing.aliyuncs.com/hexo-blog/cover/QQ%E5%9B%BE%E7%89%8720221113173833.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="基础篇"/></a><div class="content"><a class="title" href="/2022/08/09/redis/%E5%9F%BA%E7%A1%80%E7%AF%87/" title="基础篇">基础篇</a><time datetime="2022-08-08T16:00:00.000Z" title="Created 2022-08-09 00:00:00">2022-08-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/08/09/redis/%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B/" title="线程模型篇"><img src="https://edu-fly.oss-cn-beijing.aliyuncs.com/hexo-blog/cover/QQ%E5%9B%BE%E7%89%8720221113180059.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="线程模型篇"/></a><div class="content"><a class="title" href="/2022/08/09/redis/%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B/" title="线程模型篇">线程模型篇</a><time datetime="2022-08-08T16:00:00.000Z" title="Created 2022-08-09 00:00:00">2022-08-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/08/09/redis/%E8%BF%87%E6%9C%9F%E5%88%A0%E9%99%A4%E4%B8%8E%E5%86%85%E5%AD%98%E6%B7%98%E6%B1%B0/" title="过期删除策略与内存淘汰篇"><img src="https://edu-fly.oss-cn-beijing.aliyuncs.com/hexo-blog/cover/QQ%E5%9B%BE%E7%89%8720221113180052.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="过期删除策略与内存淘汰篇"/></a><div class="content"><a class="title" href="/2022/08/09/redis/%E8%BF%87%E6%9C%9F%E5%88%A0%E9%99%A4%E4%B8%8E%E5%86%85%E5%AD%98%E6%B7%98%E6%B1%B0/" title="过期删除策略与内存淘汰篇">过期删除策略与内存淘汰篇</a><time datetime="2022-08-08T16:00:00.000Z" title="Created 2022-08-09 00:00:00">2022-08-09</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://edu-fly.oss-cn-beijing.aliyuncs.com/hexo-blog/cover/QQ%E5%9B%BE%E7%89%8720221113173833.jpg')"><div id="footer-wrap"><div class="copyright">&copy;2022 By FettersLove</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><div class="js-pjax"></div><div class="aplayer no-destroy" data-id="1976848374" data-server="netease" data-type="playlist" data-fixed="true" data-mini="true" data-listFolded="false" data-order="random" data-lrctype="1" data-preload="none" data-autoplay="false" muted></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/metingjs/dist/Meting.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><!-- hexo injector body_end start --> <script data-pjax>if(document.getElementById('recent-posts') && (location.pathname ==='/'|| '/' ==='all')){
+    var parent = document.getElementById('recent-posts');
+    var child = '<div class="recent-post-item" style="width:100%;height: auto"><div id="catalog_magnet"><a class="magnet_link_more"  href="http://example.com/categories" style="flex:1;text-align: center;margin-bottom: 10px;">查看更多...</a></div></div>';
+    console.log('已挂载magnet')
+    parent.insertAdjacentHTML("afterbegin",child)}
+     </script><style>#catalog_magnet{flex-wrap: wrap;display: flex;width:100%;justify-content:space-between;padding: 10px 10px 0 10px;align-content: flex-start;}.magnet_item{flex-basis: calc(50% - 5px);background: #f2f2f2;margin-bottom: 10px;border-radius: 8px;transition: all 0.2s ease-in-out;}.magnet_item:hover{background: #b30070}.magnet_link_more{color:#555}.magnet_link{color:black}.magnet_link:hover{color:white}@media screen and (max-width: 600px) {.magnet_item {flex-basis: 100%;}}.magnet_link_context{display:flex;padding: 10px;font-size:16px;transition: all 0.2s ease-in-out;}.magnet_link_context:hover{padding: 10px 20px;}</style>
+    <style></style><script data-pjax>
+    function butterfly_categories_card_injector_config(){
+      var parent_div_git = document.getElementById('recent-posts');
+      var item_html = '<style>li.categoryBar-list-item{width:32.3%;}.categoryBar-list{max-height: 190px;overflow:auto;}.categoryBar-list::-webkit-scrollbar{width:0!important}@media screen and (max-width: 650px){.categoryBar-list{max-height: 160px;}}</style><div class="recent-post-item" style="height:auto;width:100%;padding:0px;"><div id="categoryBar"><ul class="categoryBar-list"><li class="categoryBar-list-item" style="background:url(https://edu-fly.oss-cn-beijing.aliyuncs.com/QQ%E5%9B%BE%E7%89%8720221110175517.jpg);"> <a class="categoryBar-list-link" href="categories/java/">java</a><span class="categoryBar-list-count">2</span><span class="categoryBar-list-descr">java</span></li><li class="categoryBar-list-item" style="background:url(https://edu-fly.oss-cn-beijing.aliyuncs.com/hexo-blog/categories/QQ%E5%9B%BE%E7%89%8720221113223040.jpg);"> <a class="categoryBar-list-link" href="categories/MySQL/">MySQL</a><span class="categoryBar-list-count">6</span><span class="categoryBar-list-descr">MySQL</span></li><li class="categoryBar-list-item" style="background:url(https://edu-fly.oss-cn-beijing.aliyuncs.com/hexo-blog/categories/QQ%E5%9B%BE%E7%89%8720221113223046.jpg);"> <a class="categoryBar-list-link" href="categories/redis/">redis</a><span class="categoryBar-list-count">8</span><span class="categoryBar-list-descr">计算机网络</span></li><li class="categoryBar-list-item" style="background:url(https://edu-fly.oss-cn-beijing.aliyuncs.com/hexo-blog/categories/QQ%E5%9B%BE%E7%89%8720221113223049.jpg);"> <a class="categoryBar-list-link" href="categories/计算机网络/">计算机网络</a><span class="categoryBar-list-count">3</span><span class="categoryBar-list-descr">redis</span></li></ul></div></div>';
+      console.log('已挂载butterfly_categories_card')
+      parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+      }
+    if( document.getElementById('recent-posts') && (location.pathname ==='/'|| '/' ==='all')){
+    butterfly_categories_card_injector_config()
+    }
+  </script><script async src="//at.alicdn.com/t/font_2032782_8d5kxvn09md.js"></script><!-- hexo injector body_end end --></body></html>
